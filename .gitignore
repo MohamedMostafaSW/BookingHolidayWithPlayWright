@@ -1,0 +1,25 @@
+# Ignore reports and test artifacts
+reports/
+test-results/
+playwright-report/
+blob-report/
+.traces/
+.trace/
+
+# Ignore package files
+package.json
+package-lock.json
+
+# Node dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Editor and system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
