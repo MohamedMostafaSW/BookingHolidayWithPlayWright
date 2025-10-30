@@ -502,25 +502,5 @@ export class HotelDetailsPage extends BasePage {
     }
   }
 
-  /** Wait for new tab (hotel details) and switch context */
-  private async switchToNewTabAfterClick(action: () => Promise<void>) {
-    console.log("🕓 Waiting for new tab after clicking...");
 
-    const [newPage] = await Promise.all([
-      this.page
-        .context()
-        .waitForEvent("page")
-        .catch(() => null),
-      action(),
-    ]);
-
-    if (newPage) {
-      console.log("🆕 New tab detected — switching to it...");
-      await newPage.waitForLoadState("domcontentloaded");
-      this.page = newPage;
-      console.log(`✅ Switched to new tab: ${await newPage.title()}`);
-    } else {
-      console.log("↪️ No new tab detected — staying on same page.");
-    }
-  }
 }

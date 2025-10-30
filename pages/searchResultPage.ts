@@ -1,5 +1,4 @@
-
-import{ BasePage } from './basePage';
+import { BasePage } from "./basePage";
 
 export class SearchResultsPage extends BasePage {
   constructor(page) {
@@ -16,37 +15,38 @@ export class SearchResultsPage extends BasePage {
     "//button[@aria-label='Next page' or contains(@aria-label, 'Next')] | //a[contains(@class, 'pagination-next')]";
 
   async handlePopups() {
-  const popups = this.page.locator("//button[contains(@aria-label, 'Close') or contains(@class, 'close')]");
-  const count = await popups.count();
+    const popups = this.page.locator(
+      "//button[contains(@aria-label, 'Close') or contains(@class, 'close')]"
+    );
+    const count = await popups.count();
 
-  if (count > 0) {
-    console.log(`Found ${count} popup(s). Closing visible ones...`);
-    for (let i = 0; i < count; i++) {
-      const button = popups.nth(i);
-      if (await button.isVisible()) {
-        const label = await button.getAttribute('aria-label');
-        console.log(`✅ Closed popup: ${label}`);
-        await button.click({ force: true });
-        await this.page.waitForTimeout(500);
+    if (count > 0) {
+      console.log(`Found ${count} popup(s). Closing visible ones...`);
+      for (let i = 0; i < count; i++) {
+        const button = popups.nth(i);
+        if (await button.isVisible()) {
+          const label = await button.getAttribute("aria-label");
+          console.log(`✅ Closed popup: ${label}`);
+          await button.click({ force: true });
+          await this.page.waitForTimeout(500);
+        }
       }
+    } else {
+      console.log("No popups found ✅");
     }
-  } else {
-    console.log('No popups found ✅');
   }
-}
-
 
   async selectHotel(hotelName: string) {
     await this.handlePopups();
     console.log(`Searching for hotel: ${hotelName}`);
 
-    for (let page = 1; page <= 20; page++) {
+    for (let page = 1; page <= 30; page++) {
       console.log(`🔎 Searching on page: ${page}`);
 
-      const hotelFound = await this.searchHotel(hotelName);
-      if (hotelFound) {
-        console.log(`✅ Hotel found: ${hotelName}`);
-        return;
+      const newPage = await this.searchHotel(hotelName);
+      if (newPage) {
+        console.log(`✅ Hotel found and new tab opened`);
+        return newPage;
       }
 
       const hasNext = await this.goToNextPage();
@@ -56,7 +56,7 @@ export class SearchResultsPage extends BasePage {
     throw new Error(`❌ Hotel not found: ${hotelName}`);
   }
 
-  private async searchHotel(hotelName: string): Promise<boolean> {
+  private async searchHotel(hotelName: string): Promise<any> {
     await this.page.evaluate(() =>
       window.scrollTo(0, document.body.scrollHeight)
     );
@@ -71,13 +71,15 @@ export class SearchResultsPage extends BasePage {
       if (text?.toLowerCase().includes(hotelName.toLowerCase())) {
         console.log(`🏨 Found match: ${hotelName}`);
         const hotelLink = card.locator("xpath=.//a[@data-testid='title-link']");
-        await hotelLink.click({ force: true });
-        await this.waitForPageLoad();
-        return true;
+
+        const newPage = await this.switchToNewTabAfterClick(async () => {
+          await hotelLink.click({ force: true });
+        });
+
+        console.log("✅ Switched to hotel details tab successfully");
+        return newPage; // Return the opened tab
       }
     }
-
-    return false;
   }
 
   async goToNextPage(): Promise<boolean> {

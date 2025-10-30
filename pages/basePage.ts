@@ -94,4 +94,31 @@ export class BasePage {
       return excelDate;
     }
   }
+
+  /** Handle potential new tab after click */
+async switchToNewTabAfterClick(action: () => Promise<void>): Promise<Page> {
+  const context = this.page.context();
+  const existingPages = context.pages();
+
+  // Perform the click or action that might open a new tab
+  await action();
+
+  // Wait for new tab to appear
+  const newPage = await Promise.race([
+    context.waitForEvent('page', { timeout: 5000 }),
+    this.page.waitForEvent('popup', { timeout: 5000 }).catch(() => null),
+  ]).catch(() => null);
+
+  // If new tab opened, return it
+  if (newPage && !existingPages.includes(newPage)) {
+    console.log("🆕 Switched to newly opened tab");
+    await newPage.bringToFront();
+    await newPage.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    return newPage;
+  }
+
+  console.log("ℹ️ No new tab opened, staying on same page");
+  return this.page;
+}
+
 }
