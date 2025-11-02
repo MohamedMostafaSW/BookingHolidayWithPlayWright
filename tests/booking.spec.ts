@@ -68,9 +68,15 @@ for (const data of bookingData) {
       const displayedCheckIn = await hotelDetailsPage.getDisplayedCheckInDate();
       const displayedCheckOut =
         await hotelDetailsPage.getDisplayedCheckOutDate();
+      const expectedCheckIn = await ExcelUtil.formatBookingDate(CheckInDate);
+      const expectedCheckOut = await ExcelUtil.formatBookingDate(CheckOutDate);
+      expect(displayedCheckIn.toLowerCase()).toContain(
+        expectedCheckIn.toLowerCase()
+      );
+      expect(displayedCheckOut.toLowerCase()).toContain(
+        expectedCheckOut.toLowerCase()
+      );
 
-      expect(displayedCheckIn).toContain(CheckInDate.split("-")[2]);
-      expect(displayedCheckOut).toContain(CheckOutDate.split("-")[2]);
       console.log("✓ Dates verified successfully");
 
       // Step 8: Select room and reserve

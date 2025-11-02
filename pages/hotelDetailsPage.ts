@@ -223,7 +223,7 @@ export class HotelDetailsPage extends BasePage {
     await this.clickReserveButton();
 
     console.log("✅ Room selection and reservation complete");
-    await this.page.waitForLoadState("domcontentloaded");
+    await this.page.waitForTimeout(4000);
   }
 
   /** Scroll to rooms section */
@@ -501,6 +501,4 @@ export class HotelDetailsPage extends BasePage {
       return false;
     }
   }
-
-
 }

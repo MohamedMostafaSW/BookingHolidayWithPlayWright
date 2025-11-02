@@ -1,9 +1,9 @@
-import * as XLSX from 'xlsx';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as XLSX from "xlsx";
+import * as fs from "fs";
+import * as path from "path";
 
 export class ExcelUtil {
-  private static readonly TEST_DATA_PATH = path.join(process.cwd(), 'excel');
+  private static readonly TEST_DATA_PATH = path.join(process.cwd(), "excel");
 
   /**
    * Read all data from an Excel sheet
@@ -11,7 +11,10 @@ export class ExcelUtil {
    * @param sheetName Sheet name
    * @returns Array of objects representing each row
    */
-  static getTestData(fileName: string, sheetName: string): Record<string, any>[] {
+  static getTestData(
+    fileName: string,
+    sheetName: string
+  ): Record<string, any>[] {
     const filePath = path.join(this.TEST_DATA_PATH, fileName);
 
     if (!fs.existsSync(filePath)) {
@@ -67,7 +70,7 @@ export class ExcelUtil {
     const checkOut = new Date(today);
     checkOut.setDate(today.getDate() + 60);
 
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
     data.forEach((row) => {
       row[checkInCol] = formatDate(today);
@@ -79,5 +82,14 @@ export class ExcelUtil {
     XLSX.writeFile(workbook, filePath);
 
     console.log(`✅ Updated dates successfully in ${fileName}`);
+  }
+  // ✅ Convert '2025-11-02' → 'Sun, Nov 2'
+  static formatBookingDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
   }
 }
